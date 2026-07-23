@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আল হামরা নূরানী মাদরাসা - আয় ব্যয় ব্যবস্থাপনা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- jsPDF লাইব্রেরি -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas লাইব্রেরি -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans Bengali', sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #1abc9c;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* হেডার */
+        .header {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border-left: 6px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), #16a085);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-size: 24px;
+        }
+
+        .brand-info h1 {
+            font-size: 22px;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .brand-info p {
+            color: var(--gray);
+            font-size: 13px;
+        }
+
+        .current-year {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* মেইন লেআউট */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ইনপুট সাইডবার */
+        .sidebar {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .sidebar-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* ফর্ম স্টাইল */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: var(--transition);
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background: white;
+        }
+
+        /* মাস নির্বাচন স্ট্যাটাস */
+        .month-status {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .month-status.show {
+            display: block;
+        }
+
+        /* বাটন গ্রুপ */
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #2ecc71);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #f1c40f);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #c0392b);
+            color: white;
+        }
+
+        /* মেইন কন্টেন্ট */
+        .main-content {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 180px);
+        }
+
+        /* টুলবার */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .year-title {
+            font-size: 18px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .year-select {
+            padding: 10px 15px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--secondary);
+            background: white;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 13px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--accent), #16a085);
+            color: white;
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, var(--danger), #c0392b);
+            color: white;
+        }
+
+        /* স্ট্যাটস প্যানেল */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-left: 4px solid;
+        }
+
+        .stat-card.income {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.expense {
+            border-left-color: var(--danger);
+        }
+
+        .stat-card.net {
+            border-left-color: var(--warning);
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        .income-icon {
+            background: linear-gradient(135deg, var(--success), #2ecc71);
+        }
+
+        .expense-icon {
+            background: linear-gradient(135deg, var(--danger), #e74c3c);
+        }
+
+        .net-icon {
+            background: linear-gradient(135deg, var(--warning), #f1c40f);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-title {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .income-stat {
+            color: var(--success);
+        }
+
+        .expense-stat {
+            color: var(--danger);
+        }
+
+        /* মাসিক কার্ড ভিউ */
+        .monthly-cards-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            align-content: start;
+        }
+
+        .month-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--secondary);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .month-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .month-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .month-status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-positive {
+            background: rgba(39, 174, 96, 0.15);
+            color: var(--success);
+        }
+
+        .status-negative {
+            background: rgba(231, 76, 60, 0.15);
+            color: var(--danger);
+        }
+
+        .month-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .summary-value {
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .income-value-card {
+            color: var(--success);
+        }
+
+        .expense-value-card {
+            color: var(--danger);
+        }
+
+        .month-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .card-action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 13px;
+        }
+
+        .edit-btn {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--secondary);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .delete-btn {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        /* খালি স্টেট */
+        .empty-state {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            color: #95a5a6;
+            grid-column: 1 / -1;
+        }
+
+        .empty-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #7f8c8d;
+        }
+
+        /* নোটিফিকেশন */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        .toast.error i {
+            color: var(--danger);
+        }
+
+        /* পিডিএফ প্রিভিউ মোডাল */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary), #34495e);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+            background: white;
+        }
+
+        /* পিডিএফ প্রিভিউ টেবিল */
+        .pdf-preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+            font-family: 'Noto Sans Bengali', sans-serif;
+        }
+
+        .pdf-preview-table th {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .pdf-preview-table td {
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .pdf-preview-table .month-cell {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .pdf-preview-table .income-cell {
+            color: var(--success);
+            background: rgba(39, 174, 96, 0.05);
+        }
+
+        .pdf-preview-table .expense-cell {
+            color: var(--danger);
+            background: rgba(231, 76, 60, 0.05);
+        }
+
+        .pdf-preview-table .total-row {
+            background: #f8f9fa;
+            font-weight: 700;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* লোডার */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .loader.active {
+            display: flex;
+        }
+
+        .loader .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* প্রিন্ট স্টাইল */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableContent, #printableContent * {
+                visibility: visible;
+            }
+            #printableContent {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+            }
+        }
+
+        /* প্রিন্টেবল কন্টেন্ট স্টাইল */
+        .printable-content {
+            display: none;
+        }
+
+        /* রেস্পন্সিভ */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .brand {
+                flex-direction: column;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stats-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .monthly-cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* স্ক্রলবার স্টাইল */
+        .monthly-cards-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .monthly-cards-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .monthly-cards-container::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 3px;
+        }
+        
+        /* পিডিএফ বাটন */
+        .pdf-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .pdf-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 12px;
+        }
+        
+        .pdf-btn.quick {
+            background: linear-gradient(135deg, var(--danger), #c0392b);
+            color: white;
+        }
+        
+        .pdf-btn.preview {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+        }
+        
+        /* প্রিভিউ কন্টেন্ট */
+        .preview-content {
+            width: 100%;
+            font-family: 'Noto Sans Bengali', sans-serif;
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .preview-title {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+        
+        .preview-subtitle {
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .preview-date {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .summary-boxes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .summary-box {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .summary-box-income {
+            border-left-color: var(--success);
+        }
+        
+        .summary-box-expense {
+            border-left-color: var(--danger);
+        }
+        
+        .summary-box-net {
+            border-left-color: var(--warning);
+        }
+        
+        .summary-label {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .summary-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .footer-note {
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--gray);
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <!-- লোডার -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p id="loaderMessage">পিডিএফ তৈরি করা হচ্ছে...</p>
+    </div>
+
+    <!-- পিডিএফ প্রিভিউ মোডাল -->
+    <div class="modal" id="pdfPreviewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-pdf"></i> পিডিএফ প্রিভিউ</h2>
+                <button class="close-modal" id="closePreviewModal">&times;</button>
+            </div>
+            <div class="modal-body" id="pdfPreviewContent">
+                <!-- পিডিএফ প্রিভিউ কন্টেন্ট এখানে লোড হবে -->
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" id="closePreviewBtn">
+                    <i class="fas fa-times"></i> বন্ধ করুন
+                </button>
+                <button class="action-btn danger" id="downloadPdfBtn">
+                    <i class="fas fa-download"></i> পিডিএফ ডাউনলোড করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- হেডার -->
+        <header class="header">
+            <div class="brand">
+                <div class="logo">
+                    <i class="fas fa-mosque"></i>
+                </div>
+                <div class="brand-info">
+                    <h1>আল হামরা নূরানী মাদরাসা</h1>
+                    <p>আয়-ব্যয় ব্যবস্থাপনা সিস্টেম</p>
+                </div>
+            </div>
+            <div class="current-year">
+                <i class="far fa-calendar-alt"></i>
+                <span id="currentYearDisplay">২০২৪ সাল</span>
+            </div>
+        </header>
+
+        <!-- মেইন লেআউট -->
+        <div class="main-layout">
+            <!-- সাইডবার -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <h2 class="sidebar-title">নতুন মাসের হিসাব</h2>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="far fa-calendar"></i>
+                        সাল নির্বাচন করুন
+                    </label>
+                    <input type="number" id="year" class="form-control" min="2000" max="2100" value="2024">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="far fa-calendar-check"></i>
+                        মাস নির্বাচন করুন
+                    </label>
+                    <select id="month" class="form-control">
+                        <!-- মাস গুলো ডাইনামিকভাবে যোগ হবে -->
+                    </select>
+                    <div class="month-status" id="monthStatus"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user-graduate"></i>
+                        ভর্তি বাবদ আয়
+                    </label>
+                    <input type="number" id="admissionIncome" class="form-control" placeholder="টাকার পরিমাণ" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-money-bill-alt"></i>
+                        বেতন বাবদ আয়
+                    </label>
+                    <input type="number" id="salaryIncome" class="form-control" placeholder="টাকার পরিমাণ" value="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-school"></i>
+                        মাদরাসার মাসিক খরচ
+                    </label>
+                    <input type="number" id="madrasaExpense" class="form-control" placeholder="টাকার পরিমাণ" value="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        শিক্ষক বেতন
+                    </label>
+                    <input type="number" id="teacherSalary" class="form-control" placeholder="টাকার পরিমাণ" value="">
+                </div>
+
+                <!-- বাটন গ্রুপ -->
+                <div class="button-group">
+                    <button class="btn btn-primary" id="saveBtn">
+                        <i class="fas fa-save"></i>
+                        সংরক্ষণ করুন
+                    </button>
+                    <button class="btn btn-success" id="updateBtn" style="display: none;">
+                        <i class="fas fa-sync-alt"></i>
+                        আপডেট করুন
+                    </button>
+                    <button class="btn btn-warning" id="resetBtn">
+                        <i class="fas fa-redo"></i>
+                        রিসেট করুন
+                    </button>
+                </div>
+                
+                <!-- পিডিএফ বাটন গ্রুপ -->
+                <div class="pdf-buttons">
+                    <button class="pdf-btn quick" id="quickPdfBtn">
+                        <i class="fas fa-bolt"></i>
+                        দ্রুত পিডিএফ তৈরি
+                    </button>
+                    <button class="pdf-btn preview" id="previewPdfBtn">
+                        <i class="fas fa-eye"></i>
+                        পিডিএফ প্রিভিউ
+                    </button>
+                </div>
+            </div>
+
+            <!-- মেইন কন্টেন্ট -->
+            <div class="main-content">
+                <!-- টুলবার -->
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <h2 class="year-title" id="selectedYearTitle">২০২৪ সালের আয়-ব্যয় খাতা</h2>
+                        <select id="yearSelector" class="year-select">
+                            <!-- বছর গুলো ডাইনামিকভাবে যোগ হবে -->
+                        </select>
+                    </div>
+                    
+                    <div class="toolbar-right">
+                        <button class="action-btn primary" id="addYearBtn">
+                            <i class="fas fa-plus-circle"></i>
+                            নতুন সাল যোগ করুন
+                        </button>
+                    </div>
+                </div>
+
+                <!-- স্ট্যাটস প্যানেল -->
+                <div class="stats-panel" id="statsPanel">
+                    <div class="stat-card income">
+                        <div class="stat-icon income-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-title">সর্বমোট আয়</div>
+                            <div class="stat-value income-stat" id="totalIncome">০ টাকা</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card expense">
+                        <div class="stat-icon expense-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-title">সর্বমোট ব্যয়</div>
+                            <div class="stat-value expense-stat" id="totalExpense">০ টাকা</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card net">
+                        <div class="stat-icon net-icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-title">নিট আয়/ব্যয়</div>
+                            <div class="stat-value" id="totalNet">০ টাকা</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- মাসিক আয়-ব্যয় কার্ড ভিউ -->
+                <div class="monthly-cards-container" id="monthlyCardsContainer">
+                    <!-- কার্ড গুলো এখানে লোড হবে -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- টোস্ট নোটিফিকেশন -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <div class="toast-content">
+            <h4 id="toastTitle">সফলভাবে সংরক্ষিত!</h4>
+            <p id="toastMessage">তথ্য সফলভাবে সংরক্ষণ করা হয়েছে</p>
+        </div>
+    </div>
+
+  <script>
+        // DOM এলিমেন্ট সিলেক্ট
+        const yearInput = document.getElementById('year');
+        const monthSelect = document.getElementById('month');
+        const monthStatus = document.getElementById('monthStatus');
+        const admissionIncomeInput = document.getElementById('admissionIncome');
+        const salaryIncomeInput = document.getElementById('salaryIncome');
+        const madrasaExpenseInput = document.getElementById('madrasaExpense');
+        const teacherSalaryInput = document.getElementById('teacherSalary');
+        const saveBtn = document.getElementById('saveBtn');
+        const updateBtn = document.getElementById('updateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const previewPdfBtn = document.getElementById('previewPdfBtn');
+        const quickPdfBtn = document.getElementById('quickPdfBtn');
+        const addYearBtn = document.getElementById('addYearBtn');
+        const yearSelector = document.getElementById('yearSelector');
+        const selectedYearTitle = document.getElementById('selectedYearTitle');
+        const currentYearDisplay = document.getElementById('currentYearDisplay');
+        const statsPanel = document.getElementById('statsPanel');
+        const monthlyCardsContainer = document.getElementById('monthlyCardsContainer');
+        const totalIncome = document.getElementById('totalIncome');
+        const totalExpense = document.getElementById('totalExpense');
+        const totalNet = document.getElementById('totalNet');
+        const toast = document.getElementById('toast');
+        const toastTitle = document.getElementById('toastTitle');
+        const toastMessage = document.getElementById('toastMessage');
+        const loader = document.getElementById('loader');
+        const loaderMessage = document.getElementById('loaderMessage');
+        const pdfPreviewModal = document.getElementById('pdfPreviewModal');
+        const pdfPreviewContent = document.getElementById('pdfPreviewContent');
+        const closePreviewModal = document.getElementById('closePreviewModal');
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+
+        // ভেরিয়েবল
+        let financialData = {};
+        let editingIndex = -1;
+        let selectedYear = new Date().getFullYear();
+        let editingYear = null;
+
+        // মাসের তালিকা
+        const monthList = [
+            'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
+            'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
+        ];
+
+        // লোকাল স্টোরেজ থেকে ডেটা লোড করার সংশোধিত ফাংশন
+        function loadData() {
+            const savedData = localStorage.getItem('alhamraMadrasaData');
+            if (savedData) {
+                try {
+                    financialData = JSON.parse(savedData);
+                } catch(e) {
+                    financialData = {};
+                }
+            } else {
+                financialData = {}; // ভুল ডেমো ডাটা তুলে দেওয়া হয়েছে যেন ফায়ারবেস ওভাররাইট না হয়
+            }
+            populateYearSelector();
+            loadYearData(selectedYear);
+            updateMonthDropdown();
+        }
+
+        // লোকাল স্টোরেজে ডেটা সেভ
+        function saveData() {
+            localStorage.setItem('alhamraMadrasaData', JSON.stringify(financialData));
+        }
+
+        // টোস্ট শো
+        function showToast(title, message, type = 'success') {
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // বছর সিলেক্টর পপুলেট
+        function populateYearSelector() {
+            const years = Object.keys(financialData).sort((a, b) => b - a);
+            yearSelector.innerHTML = '';
+            
+            if (years.length === 0) {
+                const currentYr = new Date().getFullYear();
+                const option = document.createElement('option');
+                option.value = currentYr;
+                option.textContent = `${currentYr} সাল`;
+                yearSelector.appendChild(option);
+            } else {
+                years.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = `${year} সাল`;
+                    if (parseInt(year) === selectedYear) {
+                        option.selected = true;
+                    }
+                    yearSelector.appendChild(option);
+                });
+            }
+
+            const currentYear = new Date().getFullYear();
+            const nextYear = currentYear + 1;
+            if (!years.includes(nextYear.toString())) {
+                const option = document.createElement('option');
+                option.value = nextYear;
+                option.textContent = `নতুন সাল যোগ করুন (${nextYear})`;
+                yearSelector.appendChild(option);
+            }
+            currentYearDisplay.textContent = `${selectedYear} সাল`;
+        }
+
+        // মাস ড্রপডাউন আপডেট
+        function updateMonthDropdown() {
+            const year = parseInt(yearInput.value);
+            const yearData = financialData[year] || [];
+            const existingMonths = yearData.map(data => data.month);
+
+            monthSelect.innerHTML = '<option value="">মাস নির্বাচন করুন</option>';
+
+            monthList.forEach(month => {
+                if (editingYear === year && editingIndex !== -1) {
+                    const editingMonth = yearData[editingIndex]?.month;
+                    if (month === editingMonth) {
+                        const option = document.createElement('option');
+                        option.value = month;
+                        option.textContent = month;
+                        option.selected = true;
+                        monthSelect.appendChild(option);
+                        return;
+                    }
+                }
+
+                if (!existingMonths.includes(month)) {
+                    const option = document.createElement('option');
+                    option.value = month;
+                    option.textContent = month;
+                    monthSelect.appendChild(option);
+                }
+            });
+
+            const availableMonths = monthList.filter(month => !existingMonths.includes(month));
+            if (availableMonths.length === 0) {
+                monthStatus.textContent = 'এই বছরের সব মাসের তথ্য দেওয়া হয়েছে';
+                monthStatus.classList.add('show');
+            } else {
+                monthStatus.textContent = `এখনও ${availableMonths.length}টি মাসের তথ্য দেওয়া বাকি`;
+                monthStatus.classList.add('show');
+            }
+        }
+
+        // নির্বাচিত বছরের ডেটা লোড
+        function loadYearData(year) {
+            selectedYear = parseInt(year);
+            selectedYearTitle.textContent = `${year} সালের আয়-ব্যয় খাতা`;
+            currentYearDisplay.textContent = `${year} সাল`;
+            yearInput.value = year;
+
+            const yearData = financialData[year] || [];
+
+            if (yearData.length === 0) {
+                monthlyCardsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list empty-icon"></i>
+                        <h3>এই বছরের কোনো তথ্য পাওয়া যায়নি</h3>
+                        <p>নতুন মাসের তথ্য যোগ করুন</p>
+                    </div>
+                `;
+                statsPanel.style.display = 'none';
+                return;
+            }
+
+            statsPanel.style.display = 'grid';
+
+            const sortedData = [...yearData].sort((a, b) => {
+                return monthList.indexOf(a.month) - monthList.indexOf(b.month);
+            });
+
+            let cardsHTML = '';
+            let totalYearIncome = 0;
+            let totalYearExpense = 0;
+
+            sortedData.forEach((data, index) => {
+                const totalMonthIncome = data.admissionIncome + data.salaryIncome;
+                const totalMonthExpense = data.madrasaExpense + data.teacherSalary;
+                const netAmount = totalMonthIncome - totalMonthExpense;
+
+                totalYearIncome += totalMonthIncome;
+                totalYearExpense += totalMonthExpense;
+
+                const statusClass = netAmount >= 0 ? 'status-positive' : 'status-negative';
+                const statusText = netAmount >= 0 ? 'আয়' : 'ব্যয়';
+                const netValue = Math.abs(netAmount);
+
+                cardsHTML += `
+                    <div class="month-card">
+                        <div class="month-card-header">
+                            <div class="month-name">
+                                <i class="far fa-calendar"></i> ${data.month}
+                            </div>
+                            <div class="month-status-badge ${statusClass}">
+                                ${formatCurrency(netValue)} টাকা (${statusText})
+                            </div>
+                        </div>
+                        <div class="month-summary">
+                            <div class="summary-item">
+                                <div class="summary-label">মোট আয়</div>
+                                <div class="summary-value income-value-card">${formatCurrency(totalMonthIncome)} টাকা</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">মোট ব্যয়</div>
+                                <div class="summary-value expense-value-card">${formatCurrency(totalMonthExpense)} টাকা</div>
+                            </div>
+                        </div>
+                        <div class="month-card-footer">
+                            <div class="card-actions">
+                                <button class="card-action-btn edit-btn" onclick="editData(${year}, ${index})" title="সম্পাদনা">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="card-action-btn delete-btn" onclick="deleteData(${year}, ${index})" title="মুছুন">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            monthlyCardsContainer.innerHTML = cardsHTML;
+
+            const netAmount = totalYearIncome - totalYearExpense;
+            totalIncome.textContent = `${formatCurrency(totalYearIncome)} টাকা`;
+            totalExpense.textContent = `${formatCurrency(totalYearExpense)} টাকা`;
+            totalNet.textContent = `${formatCurrency(Math.abs(netAmount))} টাকা`;
+            totalNet.style.color = netAmount >= 0 ? 'var(--success)' : 'var(--danger)';
+
+            updateMonthDropdown();
+        }
+
+        // কারেন্সি ফরম্যাট
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('bn-BD').format(amount);
+        }
+
+        // ডেটা ভ্যালিডেশন
+        function validateForm() {
+            const year = parseInt(yearInput.value);
+            const month = monthSelect.value;
+
+            if (!year || year < 2000 || year > 2100) {
+                showToast('ভুল সাল', 'দয়া করে সঠিক সাল লিখুন (২০০০-২১০০)', 'error');
+                return false;
+            }
+
+            if (!month) {
+                showToast('মাস নির্বাচন করুন', 'দয়া করে মাস নির্বাচন করুন', 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        // নতুন ডেটা সংরক্ষণ
+        function saveNewData() {
+            if (!validateForm()) return;
+
+            const year = parseInt(yearInput.value);
+            const month = monthSelect.value;
+            const admissionIncome = parseFloat(admissionIncomeInput.value) || 0;
+            const salaryIncome = parseFloat(salaryIncomeInput.value) || 0;
+            const madrasaExpense = parseFloat(madrasaExpenseInput.value) || 0;
+            const teacherSalary = parseFloat(teacherSalaryInput.value) || 0;
+
+            const entry = { month, admissionIncome, salaryIncome, madrasaExpense, teacherSalary };
+
+            if (!financialData[year]) {
+                financialData[year] = [];
+            }
+
+            financialData[year].push(entry);
+            saveData();
+
+            if (year === selectedYear) {
+                loadYearData(year);
+            } else {
+                populateYearSelector();
+            }
+
+            resetForm();
+            showToast('সংরক্ষণ সফল', `${month} মাসের তথ্য সংরক্ষণ করা হয়েছে`);
+        }
+
+        // ডেটা সম্পাদনা
+        function editData(year, index) {
+            const yearData = financialData[year];
+            const data = yearData[index];
+
+            yearInput.value = year;
+            monthSelect.value = data.month;
+            admissionIncomeInput.value = data.admissionIncome;
+            salaryIncomeInput.value = data.salaryIncome;
+            madrasaExpenseInput.value = data.madrasaExpense;
+            teacherSalaryInput.value = data.teacherSalary;
+
+            editingYear = year;
+            editingIndex = index;
+
+            saveBtn.style.display = 'none';
+            updateBtn.style.display = 'flex';
+
+            updateMonthDropdown();
+        }
+
+        // ডেটা আপডেট
+        function updateData() {
+            if (!validateForm()) return;
+
+            const year = editingYear;
+            const index = editingIndex;
+            const month = monthSelect.value;
+            const admissionIncome = parseFloat(admissionIncomeInput.value) || 0;
+            const salaryIncome = parseFloat(salaryIncomeInput.value) || 0;
+            const madrasaExpense = parseFloat(madrasaExpenseInput.value) || 0;
+            const teacherSalary = parseFloat(teacherSalaryInput.value) || 0;
+
+            const entry = { month, admissionIncome, salaryIncome, madrasaExpense, teacherSalary };
+
+            financialData[year][index] = entry;
+            saveData();
+
+            loadYearData(selectedYear);
+            resetForm();
+            showToast('আপডেট সফল', 'তথ্য আপডেট করা হয়েছে');
+        }
+
+        // ডেটা মুছুন
+        function deleteData(year, index) {
+            if (confirm(`আপনি কি ${year} সালের এই মাসের তথ্য মুছতে চান?`)) {
+                financialData[year].splice(index, 1);
+                if (financialData[year].length === 0) {
+                    delete financialData[year];
+                }
+                saveData();
+                loadYearData(selectedYear);
+                showToast('ডিলিট সফল', 'তথ্য মুছে ফেলা হয়েছে');
+            }
+        }
+
+        // ফরম রিসেট
+        function resetForm() {
+            yearInput.value = selectedYear;
+            monthSelect.value = '';
+            admissionIncomeInput.value = '0';
+            salaryIncomeInput.value = '0';
+            madrasaExpenseInput.value = '0';
+            teacherSalaryInput.value = '0';
+
+            editingYear = null;
+            editingIndex = -1;
+
+            saveBtn.style.display = 'flex';
+            updateBtn.style.display = 'none';
+
+            updateMonthDropdown();
+        }
+
+        // নতুন সাল যোগ
+        function addNewYear() {
+            const currentYear = new Date().getFullYear();
+            const nextYear = currentYear + 1;
+
+            if (!financialData[nextYear]) {
+                financialData[nextYear] = [];
+                saveData();
+                populateYearSelector();
+                yearSelector.value = nextYear;
+                selectedYear = nextYear;
+                loadYearData(nextYear);
+                showToast('নতুন সাল যোগ করা হয়েছে', `${nextYear} সাল যোগ করা হয়েছে`);
+            } else {
+                showToast('তথ্য বিদ্যমান', `${nextYear} সাল ইতিমধ্যে আছে`, 'error');
+            }
+        }
+
+        // প্রিভিউ HTML তৈরি
+        function generatePreviewHTML(year) {
+            const yearData = financialData[year] || [];
+            if (yearData.length === 0) {
+                return '<div style="text-align: center; padding: 40px; color: #95a5a6;">কোন তথ্য নেই</div>';
+            }
+
+            const allMonthsData = [];
+            let totalAdmissionIncome = 0;
+            let totalSalaryIncome = 0;
+            let totalMadrasaExpense = 0;
+            let totalTeacherSalary = 0;
+            let totalIncome = 0;
+            let totalExpense = 0;
+
+            monthList.forEach(month => {
+                const existingData = yearData.find(data => data.month === month);
+                if (existingData) {
+                    allMonthsData.push({
+                        month,
+                        admissionIncome: existingData.admissionIncome,
+                        salaryIncome: existingData.salaryIncome,
+                        madrasaExpense: existingData.madrasaExpense,
+                        teacherSalary: existingData.teacherSalary
+                    });
+                    totalAdmissionIncome += existingData.admissionIncome;
+                    totalSalaryIncome += existingData.salaryIncome;
+                    totalMadrasaExpense += existingData.madrasaExpense;
+                    totalTeacherSalary += existingData.teacherSalary;
+                    totalIncome += (existingData.admissionIncome + existingData.salaryIncome);
+                    totalExpense += (existingData.madrasaExpense + existingData.teacherSalary);
+                } else {
+                    allMonthsData.push({
+                        month, admissionIncome: 0, salaryIncome: 0, madrasaExpense: 0, teacherSalary: 0
+                    });
+                }
+            });
+
+            const netAmount = totalIncome - totalExpense;
+
+            const previewHTML = `
+                <div class="preview-content">
+                    <div class="preview-header">
+                        <h1 class="preview-title">আল হামরা নূরানী মাদরাসা</h1>
+                        <h2 class="preview-subtitle">আয় ব্যয় হিসাব - ${year} সাল</h2>
+                        <p class="preview-date">প্রস্তুতির তারিখ: ${new Date().toLocaleDateString('bn-BD')}</p>
+                    </div>
+
+                    <table class="pdf-preview-table">
+                        <thead>
+                            <tr>
+                                <th>মাস</th>
+                                <th>ভর্তি বাবদ আয়</th>
+                                <th>বেতন বাবদ আয়</th>
+                                <th>মাদরাসার মাসিক খরচ</th>
+                                <th>শিক্ষক বেতন</th>
+                                <th>মোট আয়</th>
+                                <th>মোট ব্যয়</th>
+                                <th>নিট অবস্থা</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${allMonthsData.map(data => {
+                                const monthIncome = data.admissionIncome + data.salaryIncome;
+                                const monthExpense = data.madrasaExpense + data.teacherSalary;
+                                const net = monthIncome - monthExpense;
+                                const monthNetColor = net >= 0 ? 'var(--success)' : 'var(--danger)';
+                                const monthNetText = net >= 0 ? 'আয়' : 'ঘাটতি';
+                                return `
+                                    <tr>
+                                        <td class="month-cell">${data.month}</td>
+                                        <td class="income-cell">${formatCurrency(data.admissionIncome)}</td>
+                                        <td class="income-cell">${formatCurrency(data.salaryIncome)}</td>
+                                        <td class="expense-cell">${formatCurrency(data.madrasaExpense)}</td>
+                                        <td class="expense-cell">${formatCurrency(data.teacherSalary)}</td>
+                                        <td class="income-cell">${formatCurrency(monthIncome)}</td>
+                                        <td class="expense-cell">${formatCurrency(monthExpense)}</td>
+                                        <td style="color: ${monthNetColor}; font-weight: 600;">
+                                            ${formatCurrency(Math.abs(net))} টাকা (${monthNetText})
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">১২ মাসের মোট আয়/ঘাটতির হিসাব:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                            <div style="text-align: center; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid var(--success);">
+                                <div style="font-size: 12px; color: var(--gray);">সর্বমোট আয়</div>
+                                <div style="font-size: 18px; color: var(--success); font-weight: 700;">${formatCurrency(totalIncome)} টাকা</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid var(--danger);">
+                                <div style="font-size: 12px; color: var(--gray);">সর্বমোট ব্যয়</div>
+                                <div style="font-size: 18px; color: var(--danger); font-weight: 700;">${formatCurrency(totalExpense)} টাকা</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid ${netAmount >= 0 ? 'var(--success)' : 'var(--danger)'};">
+                                <div style="font-size: 12px; color: var(--gray);">নিট ${netAmount >= 0 ? 'আয়' : ' ঘাটতি'}</div>
+                                <div style="font-size: 18px; color: ${netAmount >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: 700;">
+                                    ${formatCurrency(Math.abs(netAmount))} টাকা
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer-note">
+                        আল হামরা নূরানী মাদরাসা - আয় ব্যয় ব্যবস্থাপনা সিস্টেম <br>
+                        <div style="font-size: 18px; color: ${netAmount >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: 700;">
+                            প্রস্তুতকারক:- মোবারাক হোসেন <br>
+                            আল হামরা নূরানী মাদরাসা, ধানুয়াখালী <br>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <h5 style="color: var(--primary); margin-bottom: 15px;">বি:দ্র:</h5>
+                        <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 15px;">
+                            <div style="text-align: center; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid var(--success);">
+                                <div style="font-size: 20px; color: var(--red);">প্রতি মাসে চা/পানের জন্য ২৬০ টাকা বরাদ্দ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return previewHTML;
+        }
+
+        // পিডিএফ প্রিভিউ তৈরি
+        function showPdfPreview() {
+            const year = selectedYear;
+            const yearData = financialData[year] || [];
+
+            if (yearData.length === 0) {
+                showToast('কোন তথ্য নেই', 'পিডিএফ প্রিভিউ দেখাতে তথ্য যোগ করুন', 'error');
+                return;
+            }
+
+            const previewHTML = generatePreviewHTML(year);
+            pdfPreviewContent.innerHTML = previewHTML;
+            pdfPreviewModal.classList.add('active');
+        }
+
+        // পিডিএফ তৈরি এবং ডাউনলোড
+        function generatePDF(download = true) {
+            const year = selectedYear;
+            const yearData = financialData[year] || [];
+
+            if (yearData.length === 0) {
+                showToast('কোন তথ্য নেই', 'পিডিএফ তৈরি করতে তথ্য যোগ করুন', 'error');
+                return;
+            }
+
+            loaderMessage.textContent = "পিডিএফ তৈরি করা হচ্ছে...";
+            loader.classList.add('active');
+
+            const previewHTML = generatePreviewHTML(year);
+
+            const tempElement = document.createElement('div');
+            tempElement.style.position = 'absolute';
+            tempElement.style.left = '-9999px';
+            tempElement.style.top = '0';
+            tempElement.style.width = '800px';
+            tempElement.style.padding = '20px';
+            tempElement.style.backgroundColor = 'white';
+            tempElement.style.fontFamily = "'Noto Sans Bengali', sans-serif";
+            tempElement.innerHTML = previewHTML;
+
+            document.body.appendChild(tempElement);
+
+            html2canvas(tempElement, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                allowTaint: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const imgWidth = pageWidth - 20;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+
+                document.body.removeChild(tempElement);
+
+                if (download) {
+                    pdf.save(`al-hamra-madrasa-${year}-আয়-ব্যয়.pdf`);
+                    loader.classList.remove('active');
+                    showToast('পিডিএফ তৈরি সম্পন্ন', 'পিডিএফ ডাউনলোড শুরু হয়েছে');
+                }
+                return pdf;
+            }).catch(error => {
+                console.error('পিডিএফ তৈরি করতে সমস্যা:', error);
+                document.body.removeChild(tempElement);
+                loader.classList.remove('active');
+                showToast('ত্রুটি', 'পিডিএফ তৈরি করতে সমস্যা হয়েছে', 'error');
+            });
+        }
+
+        // দ্রুত পিডিএফ তৈরি
+        function quickGeneratePDF() {
+            generatePDF(true);
+        }
+
+        // পিডিএফ প্রিভিউ থেকে ডাউনলোড
+        function downloadPdfFromPreview() {
+            generatePDF(true);
+            pdfPreviewModal.classList.remove('active');
+        }
+
+        // ইভেন্ট লিসেনার
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear();
+            selectedYear = currentYear;
+
+            // বাটন ইভেন্ট
+            saveBtn.addEventListener('click', saveNewData);
+            updateBtn.addEventListener('click', updateData);
+            resetBtn.addEventListener('click', resetForm);
+            previewPdfBtn.addEventListener('click', showPdfPreview);
+            quickPdfBtn.addEventListener('click', quickGeneratePDF);
+            addYearBtn.addEventListener('click', addNewYear);
+
+            // বছর পরিবর্তন ইভেন্ট
+            yearSelector.addEventListener('change', function() {
+                selectedYear = parseInt(this.value);
+                loadYearData(selectedYear);
+            });
+
+            // সাল ইনপুট পরিবর্তন ইভেন্ট
+            yearInput.addEventListener('change', updateMonthDropdown);
+
+            // পিডিএফ প্রিভিউ মোডাল ইভেন্ট
+            closePreviewModal.addEventListener('click', () => {
+                pdfPreviewModal.classList.remove('active');
+            });
+
+            closePreviewBtn.addEventListener('click', () => {
+                pdfPreviewModal.classList.remove('active');
+            });
+
+            downloadPdfBtn.addEventListener('click', downloadPdfFromPreview);
+
+            pdfPreviewModal.addEventListener('click', (e) => {
+                if (e.target === pdfPreviewModal) {
+                    pdfPreviewModal.classList.remove('active');
+                }
+            });
+        });
+
+        // গ্লোবাল ফাংশন তৈরি
+        window.editData = editData;
+        window.deleteData = deleteData;
+    </script>
+
+    <!-- Firebase Auto-Sync Script (নিরাপদ ও ওভাররাইট বিহীন) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3GTN_6ieNI2Q8q_L0TyiD6C2i-qrGztA",
+            authDomain: "madrasa-hisab-96f66.firebaseapp.com",
+            databaseURL: "https://madrasa-hisab-96f66-default-rtdb.firebaseio.com",
+            projectId: "madrasa-hisab-96f66",
+            storageBucket: "madrasa-hisab-96f66.firebasestorage.app",
+            messagingSenderId: "687235986529",
+            appId: "1:687235986529:web:c24ba4c23f867d9e406620"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db, 'madrasa_store');
+
+        let isUpdatingFromFirebase = false;
+
+        // ১. ফায়ারবেস থেকে অন-ভ্যালু দিয়ে ডাটা আসবে এবং আগে লোকাল স্টোরেজে সেট হবে
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                isUpdatingFromFirebase = true;
+                Object.keys(data).forEach(key => {
+                    localStorage.setItem(key, data[key]);
+                });
+                isUpdatingFromFirebase = false;
+                
+                // স্ক্রিনের ভিউ রিফ্রেশ করা
+                if (typeof loadData === 'function') {
+                    loadData();
+                }
+            } else {
+                // ফায়ারবেসে ডাটা না থাকলে স্ক্রিন রেন্ডার করা
+                if (typeof loadData === 'function') {
+                    loadData();
+                }
+            }
+        });
+
+        // ২. তুমি ইনপুট দিলে ব্যাকগ্রাউন্ডে নিরাপদে ফায়ারবেসে আপডেট চলে যাবে
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            originalSetItem.apply(this, arguments);
+            if (!isUpdatingFromFirebase) {
+                set(ref(db, 'madrasa_store/' + key), value);
+            }
+        };
+
+        const originalRemoveItem = localStorage.removeItem;
+        localStorage.removeItem = function(key) {
+            originalRemoveItem.apply(this, arguments);
+            if (!isUpdatingFromFirebase) {
+                set(ref(db, 'madrasa_store/' + key), null);
+            }
+        };
+
+        const originalClear = localStorage.clear;
+        localStorage.clear = function() {
+            originalClear.apply(this, arguments);
+            if (!isUpdatingFromFirebase) {
+                set(ref(db, 'madrasa_store'), null);
+            }
+        };
+    </script>
+
+</body>
+</html>
